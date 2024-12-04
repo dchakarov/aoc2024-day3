@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import RegexHelper
+import RegexBuilder
 
 func main() {
     let fileUrl = URL(fileURLWithPath: "./aoc-input")
@@ -13,27 +13,37 @@ func main() {
     let lines = inputString.components(separatedBy: "\n")
         .filter { !$0.isEmpty }
     
-    // Sample algorithm
-    var scoreboard = [String: Int]()
-    lines.forEach { line in
-        let (name, score) = parseLine(line)
-        scoreboard[name] = score
-    }
-    scoreboard
-        .sorted { lhs, rhs in
-            lhs.value > rhs.value
-        }
-        .forEach { name, score in
-            print("\(name) \(score) pts")
-        }
+    let line = lines.first!
+    
+    let result = parseLine(line)
+    let final = result.reduce(0) { $0 + $1.0 * $1.1 }
+    print(final)
 }
 
-func parseLine(_ line: String) -> (name: String, score: Int) {
-    let helper = RegexHelper(pattern: #"([\-\w]*)\s(\d+)"#)
-    let result = helper.parse(line)
-    let name = result[0]
-    let score = Int(result[1])!
-    return (name: name, score: score)
+func parseLine(_ line: String) -> [(Int, Int)] {
+    let digit1 = Reference(Int.self)
+    let digit2 = Reference(Int.self)
+    
+    let search = Regex {
+        "("
+        TryCapture(as: digit1) {
+            OneOrMore(.digit)
+        } transform: { Int($0)! }
+        ","
+        TryCapture(as: digit2) {
+            OneOrMore(.digit)
+        } transform: { Int($0)! }
+        ")"
+    }
+    
+    var response = [(Int, Int)]()
+    
+    let result = line.matches(of: search)
+    for match in result {
+        response.append((match[digit1], match[digit2]))
+    }
+    
+    return response
 }
 
 main()
