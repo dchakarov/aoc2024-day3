@@ -13,10 +13,11 @@ func main() {
     let lines = inputString.components(separatedBy: "\n")
         .filter { !$0.isEmpty }
     
-    let line = lines.first!
+    let line = lines.joined(separator: " ")
     
     let result = parseLine(line)
     let final = result.reduce(0) { $0 + $1.0 * $1.1 }
+    print(result)
     print(final)
 }
 
@@ -25,7 +26,7 @@ func parseLine(_ line: String) -> [(Int, Int)] {
     let digit2 = Reference(Int.self)
     
     let search = Regex {
-        "("
+        "mul("
         TryCapture(as: digit1) {
             OneOrMore(.digit)
         } transform: { Int($0)! }
